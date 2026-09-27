@@ -1,0 +1,32 @@
+llm_tests:
+  example_data:
+    - test_id: "TC-001"
+      data: {employee_id: "EMP-1042", amount: "612.40", currency: "USD", category: "travel"}
+    - test_id: "TC-002"
+      data: {employee_id: "EMP-2071", amount: "540.00", currency: "USD", category: "client_entertainment"}
+    # Deliberate mistake: TC-999 does not exist among the deterministic tests -> R15
+    - test_id: "TC-999"
+      data: {employee_id: "EMP-3000", amount: "500.00", currency: "USD", category: "travel"}
+  edge_cases:
+    - id: "TC-201"
+      type: EDGE
+      covers: ["FR-002"]
+      given: "an Expense Report total is exactly $500.00 USD (the threshold boundary)"
+      when: "the Employee submits it"
+      then: "the report requires manager approval, since the rule is total > $500 triggers approval, not >="
+      reason: "boundary values around a stated threshold are the most common source of off-by-one approval bugs"
+    - id: "TC-202"
+      type: NEGATIVE
+      covers: ["FR-006"]
+      given: "a travel expense line item is exactly $25.00 (the receipt boundary)"
+      when: "the Employee submits without attaching a receipt"
+      then: "submission is blocked, since the rule requires a receipt above $25, and $25.00 is not above $25"
+      reason: "boundary values around a stated receipt threshold are worth testing explicitly"
+    # Deliberate mistake: FR-777 does not exist -> R14
+    - id: "TC-203"
+      type: EDGE
+      covers: ["FR-777"]
+      given: "an Expense Report is submitted in a currency other than USD"
+      when: "the Employee submits it"
+      then: "the system converts it to USD at the daily rate"
+      reason: "cross-currency handling is a common real-world edge case"

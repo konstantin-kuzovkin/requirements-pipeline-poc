@@ -1,0 +1,4 @@
+Employees submit expense reports for reimbursement. Reports above a
+threshold need manager approval before Finance processes payment. Some
+categories (travel, client entertainment) have per-category limits and
+require a receipt above a certain amount.

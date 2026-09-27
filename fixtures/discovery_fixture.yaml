@@ -1,0 +1,58 @@
+discovery:
+  project_name: Expense Reimbursement
+  raw_request: |
+    Employees submit expense reports for reimbursement. Reports above a
+    threshold need manager approval before Finance processes payment. Some
+    categories (travel, client entertainment) have per-category limits and
+    require a receipt above a certain amount.
+  stakeholders:
+    - id: STK-01
+      name: Employee
+      interest: Get reimbursed for approved business expenses without unnecessary delay
+      marker: FACT
+    - id: STK-02
+      name: Manager
+      interest: Approve or reject reports from direct reports above the threshold
+      marker: FACT
+    - id: STK-03
+      name: Finance
+      interest: Process payment only for correctly approved reports, and keep an audit trail
+      marker: FACT
+  scope:
+    in_scope:
+      - Submitting an expense report
+      - Manager approval for reports above the threshold
+      - Finance payment processing
+      - Per-category limits and receipt requirements
+    out_scope:
+      - Payroll integration
+      - Multi-currency conversion rules
+  assumptions:
+    - id: ASM-01
+      text: Each expense report belongs to exactly one currency; the request does not mention cross-currency reports.
+      marker: INFERENCE
+      reason: the request never mentions currency conversion, only "a certain amount"
+    - id: ASM-02
+      text: The approval threshold applies per report, not per line item.
+      marker: INFERENCE
+      reason: the request says "reports above a threshold", not "line items above a threshold"
+  open_questions:
+    - id: OQ-01
+      question: What is the reimbursement threshold amount (and in what currency) above which manager approval is required?
+      why_it_matters: blocks the acceptance criteria of the approval requirement and the state machine's guard condition
+    - id: OQ-02
+      question: What happens to a report after a manager rejects it -- can the employee revise and resubmit it, or is rejection terminal?
+      why_it_matters: blocks the state model's transitions out of REJECTED
+    - id: OQ-03
+      question: Can Finance override a manager's decision (e.g. approve something a manager rejected, or vice versa)?
+      why_it_matters: blocks whether an FR granting Finance an override capability should exist at all
+    - id: OQ-04
+      question: What is the receipt-required threshold per category, and does it differ between travel and client entertainment?
+      why_it_matters: blocks the acceptance criteria of the receipt-requirement requirement
+  glossary:
+    - term: Expense Report
+      definition: A single submission by an employee listing one or more expenses for reimbursement
+      marker: FACT
+    - term: Threshold
+      definition: The amount above which manager approval becomes mandatory before payment
+      marker: FACT

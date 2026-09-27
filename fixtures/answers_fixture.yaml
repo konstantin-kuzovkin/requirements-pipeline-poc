@@ -1,0 +1,9 @@
+answers:
+  - open_question_id: OQ-01
+    answer: "$500 USD per report"
+  - open_question_id: OQ-02
+    answer: "Yes, an employee can revise and resubmit a rejected report; rejection is not terminal"
+  - open_question_id: OQ-03
+    answer: null
+  - open_question_id: OQ-04
+    answer: "Travel requires a receipt above $25; client entertainment requires a receipt above $0 (always required)"

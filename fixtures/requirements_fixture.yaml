@@ -1,0 +1,145 @@
+requirements:
+  functional:
+    - id: FR-001
+      title: Submit expense report
+      description: An Employee submits an Expense Report listing one or more expense line items for reimbursement.
+      actor: STK-01
+      trigger: Employee completes and submits the expense form
+      acceptance_criteria:
+        - given: an Employee has at least one expense line item
+          when: they submit the report
+          then: the report is created with status SUBMITTED
+      priority: MUST
+      source: raw_request
+      status: CONFIRMED
+    - id: FR-002
+      title: Manager approval above threshold
+      description: A Manager must approve or reject a Reimbursement Request whose total exceeds $500 USD before it can proceed to payment.
+      actor: STK-02
+      trigger: an Expense Report total exceeds $500 USD
+      acceptance_criteria:
+        - given: an Expense Report with total > $500 USD is SUBMITTED
+          when: the Manager approves it
+          then: the report status becomes APPROVED
+        - given: an Expense Report with total > $500 USD is SUBMITTED
+          when: the Manager rejects it
+          then: the report status becomes REJECTED
+      priority: MUST
+      source: OQ-01
+      status: CONFIRMED
+      state_triggers: ["manager_approves", "manager_rejects"]
+    - id: FR-003
+      title: Resubmit a rejected report
+      description: An Employee can revise and resubmit a rejected Expense Report; rejection is not a terminal state.
+      actor: STK-01
+      trigger: Employee edits a REJECTED report and resubmits it
+      acceptance_criteria:
+        - given: an Expense Report is REJECTED
+          when: the Employee resubmits it
+          then: the report status becomes SUBMITTED again
+      priority: SHOULD
+      source: OQ-02
+      status: CONFIRMED
+      state_triggers: ["employee_resubmits"]
+    - id: FR-004
+      title: Finance processes payment
+      description: Finance processes payment for an approved Expense Report.
+      actor: STK-03
+      trigger: an Expense Report has status APPROVED
+      acceptance_criteria:
+        - given: an Expense Report is APPROVED
+          when: Finance processes it
+          then: the report status becomes PAID
+      priority: MUST
+      source: raw_request
+      status: CONFIRMED
+      state_triggers: ["finance_processes_payment"]
+    - id: FR-005
+      title: Finance override of a manager rejection
+      description: Finance can override a Manager's rejection for an Expense Report above the annual review threshold.
+      actor: STK-03
+      trigger: Finance reviews a REJECTED report above the annual review threshold
+      acceptance_criteria:
+        - given: an Expense Report is REJECTED and its total is above the annual review threshold
+          when: Finance overrides the rejection
+          then: the report status becomes APPROVED
+      priority: MUST
+      source: OQ-03
+      status: CONFIRMED
+      state_triggers: ["finance_overrides"]
+    - id: FR-006
+      title: Receipt requirement by category
+      description: An Employee must attach a receipt for travel expenses above $25 and for all client entertainment expenses on an Expense Report.
+      actor: STK-01
+      trigger: Employee submits an Expense Report containing a travel or client entertainment line item
+      acceptance_criteria:
+        - given: a travel line item is above $25, or the line item is client entertainment
+          when: no receipt is attached
+          then: submission is blocked with a validation error
+      priority: SHOULD
+      source: OQ-04
+      status: CONFIRMED
+  non_functional:
+    - id: NFR-001
+      category: AVAILABILITY
+      requirement: The report submission API must remain available during business hours.
+      metric: "99.5% availability, business hours, measured monthly"
+      priority: MUST
+    - id: NFR-002
+      category: SECURITY
+      requirement: All approval and override actions must be logged for audit purposes.
+      metric: all actions are logged
+      priority: SHOULD
+  entities:
+    - name: Expense Report
+      description: A single employee submission listing one or more expenses for reimbursement.
+      attributes:
+        - name: id
+          type: string
+          required: true
+        - name: employee_id
+          type: string
+          required: true
+        - name: amount
+          type: number
+          required: true
+        - name: currency
+          type: string
+          required: true
+        - name: category
+          type: string
+          required: true
+        - name: status
+          type: string
+          required: true
+        - name: receipt_url
+          type: string
+          required: false
+  state_models:
+    - entity: Expense Report
+      values: [SUBMITTED, APPROVED, REJECTED, PAID]
+      transitions:
+        - from: SUBMITTED
+          to: APPROVED
+          trigger: manager_approves
+          guard: "total <= 500 USD, or Manager approves"
+        - from: SUBMITTED
+          to: REJECTED
+          trigger: manager_rejects
+          guard: null
+        - from: REJECTED
+          to: SUBMITTED
+          trigger: employee_resubmits
+          guard: null
+        - from: REJECTED
+          to: APPROVED
+          trigger: finance_overrides
+          guard: "total above annual review threshold"
+        - from: APPROVED
+          to: PAID
+          trigger: finance_processes_payment
+          guard: null
+  open_items:
+    - id: OI-01
+      text: "OQ-03 (whether Finance can override a manager's decision) was left unanswered; FR-005 depends on it"
+      blocks: ["FR-005"]

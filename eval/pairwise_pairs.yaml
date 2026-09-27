@@ -1,0 +1,90 @@
+# Hand-labeled evaluation set for Agent 4b (pairwise contradiction check).
+# 8 genuinely contradictory pairs, 8 consistent pairs, including one
+# (case 14) that is topically related but NOT contradictory, specifically
+# to test whether the model over-fires on surface similarity.
+#
+# `expected` is CONTRADICTION or CONSISTENT. There is no UNCLEAR ground
+# truth by design: every pair here was written to have one defensible
+# answer. A model answer of UNCLEAR is scored as incorrect but reported
+# separately from a confident wrong answer -- see run_eval.py.
+
+cases:
+  - id: "P01"
+    expected: CONTRADICTION
+    req_a: {id: "A1", title: "Manager-only approval", description: "Only the direct Manager may approve reports over $500."}
+    req_b: {id: "B1", title: "Department approval", description: "Any manager in the department may approve reports over $500, not only the direct manager."}
+
+  - id: "P02"
+    expected: CONTRADICTION
+    req_a: {id: "A2", title: "Approval SLA (2s)", description: "The system must respond to an approval request within 2 seconds (p95)."}
+    req_b: {id: "B2", title: "Approval SLA (500ms)", description: "The system must respond to an approval request within 500 milliseconds (p95)."}
+
+  - id: "P03"
+    expected: CONTRADICTION
+    req_a: {id: "A3", title: "No resubmission", description: "A rejected report cannot be resubmitted; the employee must create a new report."}
+    req_b: {id: "B3", title: "Resubmission allowed", description: "An employee can revise and resubmit a rejected report using the same report ID."}
+
+  - id: "P04"
+    expected: CONTRADICTION
+    req_a: {id: "A4", title: "Local currency only", description: "All reimbursements are paid in the employee's local currency only."}
+    req_b: {id: "B4", title: "USD override", description: "Finance may pay reimbursements in USD regardless of the employee's local currency."}
+
+  - id: "P05"
+    expected: CONTRADICTION
+    req_a: {id: "A5", title: "PII encrypted at rest", description: "All PII in expense reports must be encrypted at rest using AES-256."}
+    req_b: {id: "B5", title: "Unencrypted receipts", description: "Expense report attachments, including receipts containing PII, are stored unencrypted for fast retrieval."}
+
+  - id: "P06"
+    expected: CONTRADICTION
+    req_a: {id: "A6", title: "Approval required before payment", description: "A report above $500 requires manager approval before Finance processes payment."}
+    req_b: {id: "B6", title: "Immediate payment", description: "Finance may pay any report immediately upon submission, without waiting for manager approval."}
+
+  - id: "P07"
+    expected: CONTRADICTION
+    req_a: {id: "A7", title: "Receipts always required", description: "Receipts are required for all travel expenses regardless of amount."}
+    req_b: {id: "B7", title: "Receipts above threshold only", description: "Receipts are only required for travel expenses above $25."}
+
+  - id: "P08"
+    expected: CONTRADICTION
+    req_a: {id: "A8", title: "5-year audit retention", description: "The audit log retains records for at least 5 years."}
+    req_b: {id: "B8", title: "90-day audit purge", description: "Audit log entries older than 90 days are automatically purged."}
+
+  - id: "P09"
+    expected: CONSISTENT
+    req_a: {id: "A9", title: "Submit report", description: "An employee submits an expense report with at least one line item."}
+    req_b: {id: "B9", title: "Save as draft", description: "An employee can save an expense report as a draft before submitting it."}
+
+  - id: "P10"
+    expected: CONSISTENT
+    req_a: {id: "A10", title: "Manager approves", description: "A manager approves reports above the threshold."}
+    req_b: {id: "B10", title: "Manager notification", description: "A manager receives an email notification when a report requires their approval."}
+
+  - id: "P11"
+    expected: CONSISTENT
+    req_a: {id: "A11", title: "Availability SLA", description: "The submission API must be available 99.5% of the time during business hours."}
+    req_b: {id: "B11", title: "Maintenance exclusion", description: "Scheduled maintenance windows are excluded from the availability calculation."}
+
+  - id: "P12"
+    expected: CONSISTENT
+    req_a: {id: "A12", title: "Payment turnaround", description: "Finance processes payment for approved reports within 3 business days."}
+    req_b: {id: "B12", title: "Batched payments", description: "Finance can batch multiple approved reports into a single payment run."}
+
+  - id: "P13"
+    expected: CONSISTENT
+    req_a: {id: "A13", title: "Multiple receipts", description: "An employee can attach multiple receipts to a single line item."}
+    req_b: {id: "B13", title: "Receipt file validation", description: "The system validates that an attached receipt file is an image or PDF under 10MB."}
+
+  - id: "P14"
+    expected: CONSISTENT
+    req_a: {id: "A14", title: "Manager-only approval", description: "Only the direct manager may approve reports over $500."}
+    req_b: {id: "B14", title: "Finance read-only view", description: "Finance can view, but not approve or reject, any report regardless of its status."}
+
+  - id: "P15"
+    expected: CONSISTENT
+    req_a: {id: "A15", title: "Immutable audit log", description: "Audit log entries are immutable once written."}
+    req_b: {id: "B15", title: "Audit export", description: "Audit log entries can be exported to a CSV file by an auditor."}
+
+  - id: "P16"
+    expected: CONSISTENT
+    req_a: {id: "A16", title: "Resubmission allowed", description: "A rejected report can be resubmitted by the employee after edits."}
+    req_b: {id: "B16", title: "Resubmission re-enters queue", description: "A resubmitted report resets its status to SUBMITTED and re-enters the approval queue."}

@@ -1,0 +1,26 @@
+llm_artifacts:
+  component_diagram:
+    # Deliberate mistakes for the demo to catch:
+    #   1. cites (FR-099), which does not exist -> R10
+    #   2. `covers` below lists NFR-001, but NFR-001 is never cited inline -> R11
+    mermaid: |
+      flowchart TB
+        EmployeeApp["Employee App"] -->|"submit report (FR-001)"| API["Transfer API"]
+        API -->|"require approval above threshold (FR-002)"| ApprovalQueue["Approval Queue"]
+        ApprovalQueue -->|"notify manager (FR-099)"| ManagerApp["Manager App"]
+        API -->|"process payment (FR-004)"| Ledger["Finance Ledger"]
+        API --> DB[("Database")]
+    covers: ["FR-001", "FR-002", "FR-004", "NFR-001"]
+  sequence_diagram:
+    scenario: "Employee submits a report above the threshold and the Manager approves it"
+    covers: ["FR-001", "FR-002"]
+    mermaid: |
+      sequenceDiagram
+        actor Employee
+        participant API as Transfer API
+        actor Manager
+        Employee->>API: submit report (FR-001)
+        API-->>Employee: 202 Accepted, status SUBMITTED
+        API->>Manager: approval requested (FR-002)
+        Manager->>API: approve
+        API-->>Manager: status APPROVED
